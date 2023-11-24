@@ -1,0 +1,140 @@
+/* 
+*There are 8 tables in this database
+*Customer Table - Holds customers personal information
+*Employees Table - Holds information on the employees that sold the product
+*Offices Table -Holds Sales Office information
+*Orderdetails Table - Holds the sales order line for each purchase
+*Payments Table - Holds customers payment records
+*Productlines Table- Holds a list of product line
+* Products Table - Holds the product information
+ */
+ 
+ --Checking number of rows and columns in each table
+ 
+SELECT 'customers' AS table_name, COUNT(*) AS number_of_rows, (SELECT COUNT(*) FROM pragma_table_info('customers')) AS number_of_attributes
+FROM customers 
+UNION ALL
+SELECT 'employees' AS table_name, COUNT(*) AS number_of_rows,(SELECT COUNT(*) FROM pragma_table_info('employees')) AS number_of_attributes
+FROM employees
+UNION ALL
+SELECT 'offices' AS table_name, COUNT(*) AS number_of_rows,(SELECT COUNT(*) FROM pragma_table_info('offices')) AS number_of_attributes
+FROM offices
+UNION ALL
+SELECT 'orderdetails' AS table_name, COUNT(*) AS number_of_rows,(SELECT COUNT(*) FROM pragma_table_info('orderdetails')) AS number_of_attributes
+FROM orderdetails
+UNION ALL
+SELECT 'orders' AS table_name, COUNT(*) AS number_of_rows,(SELECT COUNT(*) FROM pragma_table_info('orders')) AS number_of_attributes
+FROM orders
+UNION ALL
+SELECT 'payments' AS table_name, COUNT(*) AS number_of_rows,(SELECT COUNT(*) FROM pragma_table_info('payments')) AS number_of_attributes
+FROM payments
+UNION ALL
+SELECT 'productLines' AS table_name, COUNT(*) AS number_of_rows,(SELECT COUNT(*) FROM pragma_table_info('productLines')) AS number_of_attributes
+FROM productLines
+UNION ALL
+SELECT 'products' AS table_name, COUNT(*) AS number_of_rows,(SELECT COUNT(*) FROM pragma_table_info('products')) AS number_of_attributes
+FROM products;
+
+--Going to focus on finding the least product to order and the most product to order
+--This will help prevent the best selling product from going out of stock and will also help us see the least selling product
+
+WITH
+low_stock AS (SELECT od.productCode, productName, ROUND(SUM(od.quantityOrdered)*1.0 / p.quantityInStock ,2)AS stock
+FROM products AS p
+JOIN orderdetails AS od
+ON p.productCode = od.productCode
+GROUP BY p.productCode
+ORDER BY stock DESC              
+LIMIT 10),
+
+performance_product AS (SELECT p.productCode, p.productName, ROUND(SUM(quantityOrdered * priceEach),2) AS price_performance
+FROM orderdetails AS od
+JOIN products AS p
+ON p.productCode = od.productCode
+GROUP BY p.productCode
+ORDER BY price_performance DESC                        
+)
+
+SELECT od.productCode, pp.productName, pp.price_performance
+FROM orderdetails AS od
+JOIN performance_product AS pp
+ON pp.productCode=od.productCode
+WHERE od.productCode IN (SELECT productCode FROM low_stock)
+GROUP BY od.productCode
+ORDER BY pp.price_performance DESC
+LIMIT 10;
+--The ten products listed above are our priority stocks. They sell the most and need to be restocked most often
+
+--Now it's time to find the VIP customers. These are customers that spend the most at the stores.
+
+SELECT o.customerNumber, SUM(od.quantityordered* (od.priceEach- pd.buyPrice)) AS customer_profit
+FROM orders AS o
+JOIN orderdetails AS od
+ON o.orderNumber =od.orderNumber
+JOIN products AS pd
+ON pd.productCode = od.productCode
+Group By o.customerNumber;
+
+ --The customer numbers listed underneath are the top 5 biggest spenders at our stores
+ 
+WITH
+customer_profits AS
+(SELECT o.customerNumber, SUM(od.quantityordered * (od.priceEach - pd.buyPrice)) AS customer_profit
+FROM orders AS o
+JOIN orderdetails AS od
+ON o.orderNumber =od.orderNumber
+JOIN products AS pd
+ON pd.productCode = od.productCode
+Group By o.customerNumber
+ORDER BY customer_profit DESC)
+
+
+SELECT contactLastName, contactFirstName, city, country, customer_profit
+FROM customers AS c
+JOIN customer_profits AS cp
+ON cp.customerNumber=c.customerNumber
+ORDER BY customer_profit DESC
+LIMIT 5;
+
+--The customers listed underneath are  the top 5 customers that were least engaged
+
+WITH
+customer_profits AS
+(SELECT o.customerNumber, SUM(od.quantityordered * (od.priceEach - pd.buyPrice)) AS customer_profit
+FROM orders AS o
+JOIN orderdetails AS od
+ON o.orderNumber =od.orderNumber
+JOIN products AS pd
+ON pd.productCode = od.productCode
+Group By o.customerNumber
+ORDER BY customer_profit DESC)
+
+
+SELECT contactLastName, contactFirstName, city, country, customer_profit
+FROM customers AS c
+JOIN customer_profits AS cp
+ON cp.customerNumber=c.customerNumber
+ORDER BY customer_profit ASC
+LIMIT 5;
+
+--Now going to calculate Average customer profits
+WITH
+customer_profits AS
+(SELECT o.customerNumber, SUM(od.quantityordered * (od.priceEach - pd.buyPrice)) AS customer_profit
+FROM orders AS o
+JOIN orderdetails AS od
+ON o.orderNumber =od.orderNumber
+JOIN products AS pd
+ON pd.productCode = od.productCode
+Group By o.customerNumber
+ORDER BY customer_profit DESC)
+
+
+SELECT AVG(customer_profit)
+FROM customer_profits;
+
+/* By doing these calculations we were able to find our top 5 biggest spenders that we could then list as VIPs and provide them perks for their purchases. 
+ We also found the average profits per customer this will allow us to determine how much we can spend on advertising. */
+
+
+ 

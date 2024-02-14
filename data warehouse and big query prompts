@@ -26,3 +26,7 @@ CREATE OR REPLACE TABLE tranquil-door-410801.ny_taxi.partitioned_green_taxi
 PARTITION BY 
 DATE (lpep_pickup_datetime) AS
 SELECT * FROM `tranquil-door-410801.ny_taxi.external_green_taxi_folder`
+
+SELECT DISTINCT(PULocationID)
+ FROM `tranquil-door-410801.ny_taxi.partitioned_green_taxi` 
+WHERE  DATE(lpep_pickup_datetime) BETWEEN '2022-06-01' AND '2022-06-30';

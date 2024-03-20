@@ -12,3 +12,5 @@ The most important questions that I was looking to find answers to were: Top 5 b
 3.Which Korean song spent the longest time at the number 1 position?
 4.Which song charted the longest in the Melon 200?
 5.Which artists are the new leaders of kpop in South Korea?
+
+**Data-Engineering-Pipeline-Using-Mage** - In this project I loaded Ny Taxi data for the months of OCTOBER,NOVEMBER AND DECEMBER 2020. I transfromed the data and then exported it to Postgres. All this was done using Mage

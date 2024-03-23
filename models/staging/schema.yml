@@ -1,10 +1,10 @@
-version:2
+version: 2
+
 sources:
- - name: staging
-   database: tranquil-door-410801
-   schema: ny_taxi
+  - name: staging
+    database: tranquil-door-410801
+    schema: ny_taxi
 
-
-   tables:
-     - name: Green-taxi-data
-     - name: yellow_cab_data
+    tables:
+      - name: Green-taxi-data
+      - name: yellow_cab_data

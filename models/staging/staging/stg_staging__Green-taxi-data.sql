@@ -21,8 +21,7 @@ select
     as dropoff_locationid,
 
     -- timestamps
-    cast(lpep_pickup_datetime as numeric) as pickup_datetime,
-    cast(lpep_dropoff_datetime as numeric) as dropoff_datetime,
+    
 
     -- trip info
     store_and_fwd_flag,

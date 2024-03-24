@@ -1,37 +1,48 @@
-with 
+{{ config(materialized="view") }}
 
-source as (
+with
+    tripdata as (
+        select *, row_number() over (partition by vendorid, tpep_pickup_datetime) as rn
+        from {{ source("staging", "yellow_cab_data") }}
+        where vendorid is not null
+    )
+select
+    -- identifiers
+    {{ dbt_utils.generate_surrogate_key(["vendorid", "tpep_pickup_datetime"]) }}
+    as tripid,
+    {{ dbt.safe_cast("vendorid", api.Column.translate_type("integer")) }} as vendorid,
+    {{ dbt.safe_cast("ratecodeid", api.Column.translate_type("integer")) }}
+    as ratecodeid,
+    {{ dbt.safe_cast("pulocationid", api.Column.translate_type("integer")) }}
+    as pickup_locationid,
+    {{ dbt.safe_cast("dolocationid", api.Column.translate_type("integer")) }}
+    as dropoff_locationid,
 
-    select * from {{ source('staging', 'yellow_cab_data') }}
+    -- timestamps
 
-),
+    -- trip info
+    store_and_fwd_flag,
+    {{ dbt.safe_cast("passenger_count", api.Column.translate_type("integer")) }}
+    as passenger_count,
+    cast(trip_distance as numeric) as trip_distance,
+    -- yellow cabs are always street-hail
+    1 as trip_type,
 
-renamed as (
+    -- payment info
+    cast(fare_amount as numeric) as fare_amount,
+    cast(extra as numeric) as extra,
+    cast(mta_tax as numeric) as mta_tax,
+    cast(tip_amount as numeric) as tip_amount,
+    cast(tolls_amount as numeric) as tolls_amount,
+    cast(0 as numeric) as ehail_fee,
+    cast(improvement_surcharge as numeric) as improvement_surcharge,
+    cast(total_amount as numeric) as total_amount,
+    coalesce(
+        {{ dbt.safe_cast("payment_type", api.Column.translate_type("integer")) }}, 0
+    ) as payment_type,
+    {{ get_payment_type_description("payment_type") }} as payment_type_description
+from tripdata
+where rn = 1
 
-    select
-        {{ dbt_utils.generate_surrogate_key(['vendorid', 'lpep_pickup_datetime']) }} as tripid,
-        vendorid,
-        tpep_pickup_datetime,
-        tpep_dropoff_datetime,
-        passenger_count,
-        trip_distance,
-        ratecodeid,
-        store_and_fwd_flag,
-        pulocationid,
-        dolocationid,
-        payment_type,
-        {{get_payment_type_description('payment_type')}} as payment_type_description,
-        fare_amount,
-        extra,
-        mta_tax,
-        tip_amount,
-        tolls_amount,
-        improvement_surcharge,
-        total_amount,
-        congestion_surcharge
-
-    from source
-
-)
-
-select * from renamed
+-- dbt build --select <model.sql> --vars '{'is_test_run: false}'
+{% if var("is_test_run", default=true) %} limit 100 {% endif %}

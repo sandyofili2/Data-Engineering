@@ -1,0 +1,63 @@
+
+<h1 style="text-align:center">Austin Crime Statistics From 2015 until 2016 </h1>
+<p> This dataset monitors Part 1 crimes which are murder, rape, robbery, aggravated assault, burglary, larceny, motor vehicle theft, human trafficking and arson in Austin Texas. It monitors the increase and decrease of Part 1 crimes from January 1st 2015 until December 31st 2016. We can compare the information in the dataset to policies that were implemented in Austin and how those policies impacted the community when it comes to Part 1 crimes. The information will then be used to make suggestions on how to decrease certain Part 1 crimes.
+</p>
+import pandas as pd
+import numpy as np
+
+                                    #Uploading of dataset
+with open('Annual_Crime_Dataset_2015.csv') as d:
+    Austin_2015 = pd.read_csv(d)
+
+Austin_2015
+with open('2016_Annual_Crime_Data_20240414.csv') as c:
+    Austin_2016 = pd.read_csv(c)
+Austin_2016
+                                            #Clean Dataset 
+Austin_2015.isna().sum()
+Austin_2016.isna().sum() #Checking for rows with null or nan values
+
+Austin2015 = Austin_2015.copy() #making copy of df incase of mistake will be able to go back to initial dataframe
+Austin2015 = Austin2015.dropna()
+Austin2015.isna().sum()
+Austin2016 = Austin_2016.copy()
+Austin2016= Austin2016.dropna()
+Austin2016.describe()
+Austin2015.describe()
+Austin2015
+Austin2015 = Austin2015.rename(columns={'Council District': 'Council_District',
+                                        'GO Location Zip': 'GO_Location_Zip',
+                                        'GO Census Tract': 'GO_Census_Tract',
+                                        'GO X Coordinate': 'GO_X_Coordinate',
+                                        'GO Y Coordinate ': 'GO_Y_Coordinate '
+                                        
+                                       })
+Austin2016 = Austin2016.rename(columns={'GO Primary Key':'GO_Primary_Key',
+                                        'Council District': 'Council_District',
+                                        'GO Location Zip': 'GO_Location_Zip',
+                                        'GO Census Tract': 'GO_Census_Tract',
+                                        'GO X Coordinate': 'GO_X_Coordinate',
+                                        'GO Y Coordinate ': 'GO_Y_Coordinate '
+                                        
+                                       })
+Austin2015.dtypes #Checking datatypes and converting where neccessary
+Austin2015['Council_District'] = Austin2015['Council_District'].astype(int)
+Austin2015['GO_Location_Zip'] = Austin2015['GO_Location_Zip'].astype(int)
+Austin2015['GO_Census_Tract'] = Austin2015['GO_Census_Tract'].astype(int)
+Austin2015['GO_X_Coordinate'] = Austin2015['GO_X_Coordinate'].astype(int)
+Austin2015['GO Y Coordinate'] = Austin2015['GO Y Coordinate'].astype(int)
+Austin2016.dtypes
+Austin2016['GO_Primary_Key'] = Austin2016['GO_Primary_Key'].astype(int)
+Austin2016['Council_District'] = Austin2016['Council_District'].astype(int)
+Austin2016['GO_Location_Zip'] = Austin2016['GO_Location_Zip'].astype(int)
+Austin2016['GO_Census_Tract'] = Austin2016['GO_Census_Tract'].astype(int)
+Austin2016['GO_X_Coordinate'] = Austin2016['GO_X_Coordinate'].astype(int)
+Austin2016['GO Y Coordinate'] = Austin2016['GO Y Coordinate'].astype(int)
+Austin2015.info()
+Austin2016.info()
+                        #Load data to Google Cloud Storage
+pip install gcsfs
+Austin2015.to_csv('gs://austincrimedata/Austin2015.csv')
+
+Austin2016.to_csv('gs://austincrimedata/Austin2016.csv')
+

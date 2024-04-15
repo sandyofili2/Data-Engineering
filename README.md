@@ -14,3 +14,5 @@ The most important questions that I was looking to find answers to were: Top 5 b
 5.Which artists are the new leaders of kpop in South Korea?
 
 **Data-Engineering-Pipeline-Using-Mage** - In this project I loaded Ny Taxi data for the months of OCTOBER,NOVEMBER AND DECEMBER 2020. I transfromed the data and then exported it to Postgres. All this was done using Mage
+
+**DBT DATA TRANSFORMATION** - In this project I took taxi data information from NYC and then transformed them using DBT. DBT is good for transforming large datasets using SQL and managing those datasets. It also, makes it easy to transfer the datasets to LOOKER in which you can then create visualizations using the transformed data. DBT also allows for CI/CD. 

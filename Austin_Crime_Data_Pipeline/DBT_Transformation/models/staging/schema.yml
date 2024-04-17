@@ -1,0 +1,11 @@
+version: 2
+
+
+sources:
+  - name: staging
+    database: austincrimedata-420522
+    schema: austin_crime
+
+    tables:
+      - name: Austin_2015
+      - name: Austin_2016

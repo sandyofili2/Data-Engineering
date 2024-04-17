@@ -1,4 +1,5 @@
 <h2> This project contains a pipeline using python </h2>
+<h4>Used batch daily automatic processing batches on mage.ai</h4>
 
 <h4>This was my final project for the Datatalks Bootcamp</h4>
 

@@ -1,3 +1,4 @@
+#Transforming Data
 import pandas as pd
 
 if 'transformer' not in globals():
@@ -11,6 +12,7 @@ def transform(data, *args, **kwargs):
     data.columns = data.columns.str.replace(" ", "_", regex=True).str.lower()
     data = data.drop('unnamed:_0',axis=1)
     data = data.rename(columns={'highest_nibrs/ucr_offense_description': 'highest_offense_description'})
+    #During uploading and transfering the coloumn name changed, so changed it back to the correct name
     
 
     return data
